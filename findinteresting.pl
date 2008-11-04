@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# This is very much alpha, hacky code.  Buyer beware!
+
 if (!$ARGV[0]) {
     print "USAGE: findinteresting.pl path\n";
     exit;
