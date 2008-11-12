@@ -1,6 +1,7 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # This is very much alpha, hacky code.  Buyer beware!
+# TODO: Allow user to selectively ignore time gaps between photos
 
 if (!$ARGV[0]) {
     print "USAGE: findinteresting.pl path\n";
@@ -9,16 +10,38 @@ if (!$ARGV[0]) {
 
 my $path = $ARGV[0];
 
+# first, find the last interesting image
+# sort in reverse numerical order
+$output = `ls -lr ${path}interesting/*.jpg`;
+@output = split(/\n/, $output);
+if ( !@output ) {
+    $lastInterestingDateTime = "0";
+} else {
+    $lastInteresting = shift(@output);
+    # using the same regex here as in the while loop below
+    $lastInteresting =~ /(\d+ ... \d\d:\d\d).+[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
+    $date = $3;
+    $time = $4;
+    $lastInterestingDateTime = "$date$time";
+}
+#print "$lastInterestingDateTime\n";
+
 $output = `ls -lrt $path*.jpg`;
 @output = split(/\n/, $output);
 
 my $prevFile;
 my $prevTime;
 while (my $line = shift(@output)) {
-    $line =~ /(\d+ ... \d\d:\d\d).+[^0-9]([0-9]+-([0-9]+)\.jpg)$/;
-    my $datetime = $1;
+    $line =~ /(\d+ ... \d\d:\d\d).+[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
+    #my $datetime = $1;
     my $file = $2;
-    my $time = $3;
+    my $date = $3;
+    my $time = $4;
+    
+    if ( "$date$time" < $lastInterestingDateTime ) {
+        #print "$date-$time\n";
+        next;
+    }
     
     if ($prevFile) {
         # need to pipe stderr to stdout
@@ -26,19 +49,22 @@ while (my $line = shift(@output)) {
         #print "Score = $score";
         #$score =~ /(\d+)/;
         #print $1;
-        $timeDiff = $time - $prevTime;
-        if ( $score > 60000 ) {
+        $timeDiff = "$date$time" - $prevDateTime;
+        #print "$file - $prevFile - $score\n";
+        if ( $score > 35000 ) {
             if ( $timeDiff > 1000 || $timeDiff < 0 ) {
                 print "Rejected: $file - $prevFile - $timeDiff\n";
             } else {
-                print "$file different than $prevFile - $score";
+                #print "$file different than $prevFile - $score";
                 `cp $path$file ${path}interesting/$file`;
             }
         }
     }
 
     $prevFile = $file;
-    $prevTime = $time;
+    $prevDateTime = "$date$time";
 }
+
+`rm output.jpg`;
 
 #print $output;
