@@ -30,6 +30,8 @@ $output = `ls -lrt $path*.jpg`;
 
 my $prevFile;
 my $prevTime;
+my $count = 0;
+my $compared = FALSE;
 while (my $line = shift(@output)) {
     $line =~ /(\d+ ... \d\d:\d\d).+[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
 
@@ -44,6 +46,7 @@ while (my $line = shift(@output)) {
     if ($prevFile) {
         # need to pipe stderr to stdout
         $score = `compare -metric AE -fuzz 30% $path$file $path$prevFile output.jpg 2>&1`;
+        $compared = TRUE;
 
         $timeDiff = "$date$time" - $prevDateTime;
 
@@ -52,6 +55,8 @@ while (my $line = shift(@output)) {
                 # print "Rejected: $file - $prevFile - $timeDiff\n";
             } else {
                 `cp $path$file ${path}interesting/$file`;
+                print "${path}interesting/$file\n";
+                $count++;
             }
         }
     }
@@ -60,4 +65,8 @@ while (my $line = shift(@output)) {
     $prevDateTime = "$date$time";
 }
 
-`rm output.jpg`;
+if ( $compared ) {
+    `rm output.jpg`;
+}
+
+print "$count interesting photos found\n";
