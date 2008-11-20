@@ -1,5 +1,10 @@
 #!/usr/bin/perl -w
 
+# USAGE: findinteresting.pl imagedirectory
+#
+# @author Neil Crosby <neil@neilcrosby.com>
+# @license http://creativecommons.org/licenses/by-sa/3.0/
+#
 # This is very much alpha, hacky code.  Buyer beware!
 # TODO: Allow user to selectively ignore time gaps between photos
 
