@@ -17,20 +17,20 @@ my $path = $ARGV[0];
 
 # first, find the last interesting image
 # sort in reverse numerical order
-$output = `ls -lr ${path}interesting/*.jpg`;
+$output = `find ${path}interesting/ -type f -name '*.jpg'`;
 @output = split(/\n/, $output);
 if ( !@output ) {
     $lastInterestingDateTime = "0";
 } else {
-    $lastInteresting = shift(@output);
+    $lastInteresting = pop(@output);
     # using the same regex here as in the while loop below
-    $lastInteresting =~ /(\d+ ... \d\d:\d\d).+[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
-    $date = $3;
-    $time = $4;
+    $lastInteresting =~ /[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
+    $date = $2;
+    $time = $3;
     $lastInterestingDateTime = "$date$time";
 }
 
-$output = `ls -lrt $path*.jpg`;
+$output = `find $path -type f -name '*.jpg'`;
 @output = split(/\n/, $output);
 
 my $prevFile;
@@ -38,11 +38,11 @@ my $prevTime;
 my $count = 0;
 my $compared = FALSE;
 while (my $line = shift(@output)) {
-    $line =~ /(\d+ ... \d\d:\d\d).+[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
+    $line =~ /[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
 
-    my $file = $2;
-    my $date = $3;
-    my $time = $4;
+    my $file = $1;
+    my $date = $2;
+    my $time = $3;
     
     if ( "$date$time" < $lastInterestingDateTime ) {
         next;
