@@ -24,10 +24,8 @@ if ( !@output ) {
 } else {
     $lastInteresting = pop(@output);
     # using the same regex here as in the while loop below
-    $lastInteresting =~ /[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
-    $date = $2;
-    $time = $3;
-    $lastInterestingDateTime = "$date$time";
+    $lastInteresting =~ /([0-9]+)\.jpg$/;
+    $lastInterestingDateTime = $1;
 }
 
 $output = `find $path -type f -name '*.jpg'`;
@@ -38,36 +36,38 @@ my $prevTime;
 my $count = 0;
 my $compared = FALSE;
 while (my $line = shift(@output)) {
-    $line =~ /[^0-9](([0-9]+)-([0-9]+)\.jpg)$/;
-
-    my $file = $1;
-    my $date = $2;
-    my $time = $3;
+    if ( $line =~ /interesting/ ) {
+        next;
+    }
     
-    if ( "$date$time" < $lastInterestingDateTime ) {
+    $line =~ /([0-9]+)\.jpg$/;
+
+    my $datetime = $1;
+    
+    if ( $datetime < $lastInterestingDateTime ) {
         next;
     }
     
     if ($prevFile) {
         # need to pipe stderr to stdout
-        $score = `compare -metric AE -fuzz 30% $path$file $path$prevFile output.jpg 2>&1`;
+        $score = `compare -metric AE -fuzz 30% $path$datetime.jpg $path$prevFile output.jpg 2>&1`;
         $compared = TRUE;
 
-        $timeDiff = "$date$time" - $prevDateTime;
+        $timeDiff = $datetime - $prevDateTime;
 
         if ( $score > 35000 ) {
             if ( $timeDiff > 1000 || $timeDiff < 0 ) {
-                # print "Rejected: $file - $prevFile - $timeDiff\n";
+                #print "Rejected: $datetime.jpg - $prevFile - $timeDiff\n";
             } else {
-                `cp $path$file ${path}interesting/$file`;
-                print "${path}interesting/$file\n";
+                `cp $path$datetime.jpg ${path}interesting/$datetime.jpg`;
+                print "${path}interesting/$datetime.jpg\n";
                 $count++;
             }
         }
     }
 
-    $prevFile = $file;
-    $prevDateTime = "$date$time";
+    $prevFile = $datetime.'.jpg';
+    $prevDateTime = $datetime;
 }
 
 if ( $compared ) {
