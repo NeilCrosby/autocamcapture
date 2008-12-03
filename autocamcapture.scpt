@@ -18,7 +18,7 @@ delay 5
 
 -- Now we work out what to call the image we're about to create.
 -- HINT: it's YYYYMMDD-HHMMSS.jpg
-set outputImageName to do shell script "date +%Y%m%d-%H%M%S"
+set outputImageName to do shell script "date +%Y%m%d%H%M%S"
 
 -- Finally, we run camcapture as a shell script.
 -- It's run as a shell script because otherwise OSX gets upset and refuses to
