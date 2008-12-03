@@ -14,4 +14,12 @@ Currently the script ignores the previous photos if they were taken more than n 
 
 findinteresting.pl requires you to have installed the ImageMagick suite of tools.
 
+# Oh noes for early adopters
+
+If you were an early adopter of this script, you'll have images being created with dashes in their filenames.  Unfortunately, things have changed and that dash is no longer wanted.  Fortunately it's pretty darned easy to rename all those files.  Just cd into the directory your images are being created in, and then run the following command:
+
+    for file in *.jpg ; do mv $file `echo $file | sed 's/-//g'`; done
+
+You might want to do that in the `interesting` directory too.
+
 [1]: http://thecodetrain.co.uk/2008/11/how-to-automatically-take-photos-using-your-macs-webcam/
