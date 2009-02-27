@@ -17,7 +17,7 @@ set outputImagePath to "~/Pictures/autocamcapture/"
 delay 5
 
 -- Now we work out what to call the image we're about to create.
--- HINT: it's YYYYMMDD-HHMMSS.jpg
+-- HINT: it's YYYYMMDDHHMMSS.jpg
 set outputImageName to do shell script "date +%Y%m%d%H%M%S"
 
 -- Finally, we run camcapture as a shell script.
